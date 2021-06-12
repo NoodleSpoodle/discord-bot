@@ -32,8 +32,9 @@ class HelpMenu(ListPageSource):
 		len_data = len(self.entries)
 
 		embed = embeds.Embed(title="Help",
-					  description="Cabbage bot command help!",
-					  colour=0x00FF00)
+					  		 description="Cabbage bot command help!",
+					  		 colour=0x00FF00)
+
 		embed.set_thumbnail(url=self.ctx.guild.me.avatar_url)
 		embed.set_footer(text=f"{offset:,} - {min(len_data, offset+self.per_page-1):,} of {len_data:,} commands.")
 

@@ -1,5 +1,6 @@
 from random import choice, randint
 from typing import Optional
+from datetime import datetime
 from aiohttp import request
 from discord import Member, embeds
 from discord.errors import HTTPException
@@ -28,6 +29,61 @@ class Fun(Cog):
             await ctx.send(" + ".join([str(r) for r in rolls]) + f" = {sum(rolls)}")
         else:
             await ctx.send("I can't roll that many dice")
+
+    @command(name="wink")
+    async def wink_command(self,ctx, member: Member, *, reason: Optional[str] = "for no reason"):
+        async with request("GET", "https://some-random-api.ml/animu/wink", headers={}) as response:
+            if response.status == 200:
+                data = await response.json()
+                image_link = data["link"]
+            else:
+                await ctx.send(f"Uh oh, API returned a {response.status} status")
+
+            await ctx.send(f"{ctx.author.display_name} winks at {member.mention} {reason}!")
+            await ctx.send(image_link)
+
+    @command(name="meme")
+    async def meme_command(self,ctx):
+        async with request("GET", "https://some-random-api.ml/meme", headers={}) as response:
+            if response.status == 200:
+                data = await response.json()
+                meme_link = data["image"]
+                caption = data["caption"]
+            else:
+                await ctx.send(f"Uh oh, API returned a {response.status} status")
+
+            embed = embeds.Embed(title=caption,
+					             colour=0x00FF00,
+						         timestamp=datetime.utcnow())
+
+            embed.set_image(url=meme_link)
+
+            await ctx.send(embed=embed)
+
+    @command(name="pat")
+    async def pat_command(self,ctx, member: Member, *, reason: Optional[str] = "for no reason"):
+        async with request("GET", "https://some-random-api.ml/animu/pat", headers={}) as response:
+            if response.status == 200:
+                data = await response.json()
+                image_link = data["link"]
+            else:
+                await ctx.send(f"Uh oh, API returned a {response.status} status")
+
+            await ctx.send(f"{ctx.author.display_name} pats {member.mention} {reason}!")
+            await ctx.send(image_link)
+
+    @command(name="hug")
+    async def hug_command(self,ctx, member: Member, *, reason: Optional[str] = "for no reason"):
+        async with request("GET", "https://some-random-api.ml/animu/hug", headers={}) as response:
+            if response.status == 200:
+                data = await response.json()
+                image_link = data["link"]
+            else:
+                await ctx.send(f"Uh oh, API returned a {response.status} status")
+
+            await ctx.send(f"{ctx.author.display_name} hugs {member.mention} {reason}!")
+            await ctx.send(image_link)
+
 
     @command(name="slap", aliases=["hit"])
     @cooldown(1,10,BucketType.user)

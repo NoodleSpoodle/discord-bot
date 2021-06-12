@@ -3,7 +3,7 @@ from datetime import datetime
 from asyncio import sleep
 from glob import glob
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import embeds
+from discord import embeds, DMChannel
 from discord.errors import HTTPException, Forbidden
 from discord.ext.commands import Bot as BotBase
 from discord.ext.commands import Context
@@ -113,7 +113,7 @@ class Bot(BotBase):
             embed = embeds.Embed(title="Now Online!", description="Cabbage bot has awakened", colour=0x00FF00, timestamp=datetime.utcnow())
             icon_for_auth = "https://cdn.discordapp.com/avatars/806885835181260800/ed34a9b2eb6db3ee67d65db2a24982e2.png?size=128"
             embed.set_author(name="Cabbage bot", icon_url=icon_for_auth)
-            embed.set_footer(text="Coded by NoodleSpoodle#2399")
+            embed.set_footer(text="Coded by NoodleSpoodle")
             embed.set_thumbnail(url=icon_for_auth)
             await self.stdout.send(embed=embed)
 
@@ -123,8 +123,31 @@ class Bot(BotBase):
         else:
             print("bot reconnected")
 
-    async def on_message(self,message):
+    async def on_message(self, message):
         if not message.author.bot:
-            await self.process_commands(message)
+            if isinstance(message.channel, DMChannel):
+                if len(message.content) < 50:
+                    await message.channel.send("Your message should be at least 50 characters in length.")
+
+                else:
+                    member = self.guild.get_member(message.author.id)
+                    embed = embeds.Embed(title="Modmail",
+								  colour=member.colour,
+								  timestamp=datetime.utcnow())
+
+                    embed.set_thumbnail(url=member.avatar_url)
+
+                    fields = [("Member", member.display_name, False),
+							  ("Message", message.content, False)]
+
+                    for name, value, inline in fields:
+                        embed.add_field(name=name, value=value, inline=inline)
+
+                    mod = self.get_cog("Mod")
+                    await mod.log_channel.send(embed=embed)
+                    await message.channel.send("Message relayed to moderators.")
+
+            else:
+                await self.process_commands(message)
 
 bot = Bot()
