@@ -284,7 +284,7 @@ class Mod(Cog):
 		def _check(m):
 			return (m.author == message.author
 					and len(m.mentions)
-					and (datetime.utcnow()-m.created_at).seconds < 60)
+					and (datetime.utcnow()-m.created_at).seconds < 10)
 
 		if not message.author.bot:
 			if len(list(filter(lambda m: _check(m), self.bot.cached_messages))) >= 3:

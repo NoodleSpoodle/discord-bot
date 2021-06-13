@@ -44,6 +44,24 @@ class Bot(BotBase):
 
         print("setup complete")
 
+    def update_db(self):
+        db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
+                     ((guild.id,) for guild in self.guilds))
+
+        db.multiexec("INSERT OR IGNORE INTO exp (UserID) VALUES (?)",
+                     ((member.id,) for member in self.guild.members if not member.bot))
+
+        to_remove = []
+        stored_members = db.column("SELECT UserID FROM exp")
+        for id_ in stored_members:
+            if not self.guild.get_member(id_):
+                to_remove.append(id_)
+
+        db.multiexec("DELETE FROM exp WHERE UserID = ?",
+                     ((id_,) for id in to_remove))
+
+        db.commit()
+
     def run(self, version):
         self.VERSION = version
 
@@ -106,6 +124,8 @@ class Bot(BotBase):
             self.guild = self.get_guild(710535137452097599)
             self.stdout = self.get_channel(801181416977072188)
             self.scheduler.start()
+
+            self.update_db()
 
             while not self.cogs_ready.all_ready():
                 await sleep(0.5)
